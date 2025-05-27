@@ -1,0 +1,3 @@
+from .settings import PAGE_CONFIG, AWS_CONFIG, UPLOAD_CONFIG
+
+__all__ = ['PAGE_CONFIG', 'AWS_CONFIG', 'UPLOAD_CONFIG']
