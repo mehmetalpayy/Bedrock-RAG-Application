@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List, Optional
 
 
 class ChatRequest(BaseModel):
@@ -8,4 +7,3 @@ class ChatRequest(BaseModel):
 
 class RetrievalRequest(BaseModel):
     query: str
-    file_ids: Optional[List[str]] = None

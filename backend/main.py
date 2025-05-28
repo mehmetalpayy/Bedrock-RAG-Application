@@ -3,7 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from .requests import ChatRequest, RetrievalRequest
 from .responses import ChatResponse, RetrievalResponse
 from .bedrock import BedrockChunkRetriever
+from langchain_google_genai import ChatGoogleGenerativeAI
 from .logger import RichLogger
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = FastAPI()
 
@@ -28,32 +32,39 @@ async def log_requests(request: Request, call_next):
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
+    logger.info(f"Received /chat request with body: {request}")
     try:
         user_input = request.user_input
-        response_message = f"LLM'den yanıt: {user_input} mesajınızı aldım, işliyorum."
-        
+        logger.info(f"User input: {user_input}")
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            temperature=0
+        )
+        logger.info("ChatGoogleGenerativeAI model initialized.")
+        response = llm.invoke(input=user_input)
+        logger.info(f"Model response: {response}")
         return ChatResponse(
-            answer=response_message,
+            answer=response.content
         )
     except Exception as e:
+        logger.error(f"Error in /chat endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
 
 @app.post("/retrieve_chunks", response_model=RetrievalResponse)
 async def retrieve(request: RetrievalRequest):
+    logger.info(f"Received /retrieve_chunks request with body: {request}")
     try:
         retriever = BedrockChunkRetriever()
+        logger.info("BedrockChunkRetriever instance created.")
 
-        metadata_filter = {
-            "equals": {
-                "key": "x-amz-bedrock-kb-source-uri",
-                "value": [f"s3://bedrock-agentic-rag/{file_id}" for file_id in request.file_ids]
-            }
-        }
+        answer = await retriever.retrieve(
+            query=request.query
+        )
+        logger.info(f"BedrockChunkRetriever returned answer: {answer}")
         
-        results = await retriever.retrieve(request.user_input, number_of_results=4, metadata_filter=metadata_filter)
-        
-        return RetrievalResponse(chunks=results)
+        return ChatResponse(answer=answer)
 
     except Exception as e:
+        logger.error(f"Error in /retrieve_chunks endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

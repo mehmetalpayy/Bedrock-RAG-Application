@@ -20,6 +20,14 @@ custom_theme = Theme({
 
 
 class RichLogger:
+    _instance = None
+    _initialized = False
+
+    def __new__(cls, name: str = "app"):
+        if cls._instance is None:
+            cls._instance = super(RichLogger, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self, name: str = "app"):
         self.name = name
         self.log_dir = Path("logs")
@@ -29,30 +37,32 @@ class RichLogger:
         self.console = Console(theme=custom_theme)
         
         self.logger = self._setup_logger()
+        self._initialized = True
 
     def _setup_logger(self) -> logging.Logger:
         logger = logging.getLogger(self.name)
         logger.setLevel(logging.DEBUG)
 
-        rich_handler = RichHandler(
-            console=self.console,
-            rich_tracebacks=True,
-            tracebacks_show_locals=True,
-            show_time=True,
-            show_path=True,
-            enable_link_path=True,
-            markup=True,
-            log_time_format="[timestamp]%Y-%m-%d %H:%M:%S[/]"
-        )
+        if not logger.handlers:
+            rich_handler = RichHandler(
+                console=self.console,
+                rich_tracebacks=True,
+                tracebacks_show_locals=True,
+                show_time=True,
+                show_path=True,
+                enable_link_path=True,
+                markup=True,
+                log_time_format="[timestamp]%Y-%m-%d %H:%M:%S[/]"
+            )
 
-        file_handler = logging.FileHandler(self.log_filename, encoding='utf-8')
-        file_handler.setFormatter(
-            logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        )
+            file_handler = logging.FileHandler(self.log_filename, encoding='utf-8')
+            file_handler.setFormatter(
+                logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            )
 
-        logger.addHandler(rich_handler)
-        logger.addHandler(file_handler)
-        logger.propagate = False
+            logger.addHandler(rich_handler)
+            logger.addHandler(file_handler)
+            logger.propagate = False
 
         return logger
 
@@ -77,14 +87,10 @@ class RichLogger:
 
     def critical(self, message: str) -> None:
         formatted = self._format_message(message, "critical")
-        self.console.print("\n[bold red]"+"!"*50+"[/]")
         self.logger.critical(formatted)
-        self.console.print("[bold red]"+"!"*50+"\n[/]")
 
     def exception(self, message: str) -> None:
-        self.console.print("\n[bold red]"+"!"*50+"[/]")
         self.logger.exception(f"[error]{message}[/]")
-        self.console.print("[bold red]"+"!"*50+"\n[/]")
 
     def success(self, message: str) -> None:
         """Custom success message with green checkmark"""
