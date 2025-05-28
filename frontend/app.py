@@ -5,7 +5,7 @@ from config import PAGE_CONFIG
 
 st.set_page_config(**PAGE_CONFIG)
 
-st.title("🤖 Agentic RAG Chat Sistemi")
+st.title("🧠 Agentic RAG Chat Application")
 st.subheader('RAG Using Knowledge Base from Amazon Bedrock', divider='rainbow')
 
 init_session_state()

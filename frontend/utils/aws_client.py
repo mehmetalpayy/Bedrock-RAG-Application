@@ -7,7 +7,7 @@ load_dotenv()
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-REGION_NAME = os.getenv("AWS_REGION", "eu-central-1")
+REGION_NAME = os.getenv("AWS_DEFAULT_REGION", "eu-central-1")
 KNOWLEDGE_BASE_ID = os.getenv("KNOWLEDGE_BASE_ID", "")
 S3_BUCKET = os.getenv("S3_BUCKET", "")
 

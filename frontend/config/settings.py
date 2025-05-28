@@ -3,13 +3,13 @@ import os
 
 PAGE_CONFIG = {
     "page_title": "Agentic RAG Application",
-    "page_icon": "🤖",
+    "page_icon": "🧠",
     "layout": "wide"
 }
 
 
 AWS_CONFIG = {
-    "region": os.getenv("AWS_REGION", "eu-central-1"),
+    "region": os.getenv("AWS_DEFAULT_REGION", "eu-central-1"),
     "s3_bucket": os.getenv("S3_BUCKET", "your-bucket-name"),
     "knowledge_base_id": os.getenv("KNOWLEDGE_BASE_ID", "YOUR_KNOWLEDGE_BASE_ID")
 }
